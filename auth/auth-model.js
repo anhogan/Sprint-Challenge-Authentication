@@ -12,7 +12,11 @@ function find() {
 };
 
 function findBy(filter) {
-  return db('users').where(filter);
+  if (filter) {
+    return db('users').where(filter);
+  } else {
+    return 'Error, a filter must be provided';
+  };
 };
 
 function findById(id) {
@@ -20,7 +24,11 @@ function findById(id) {
 };
 
 async function add(user) {
-  const [id] = await db('users').insert(user);
+  if (user) {
+    const [id] = await db('users').insert(user);
 
-  return findById(id);
+    return findById(id);
+  } else {
+    return 'Error, new users must have a username and password';
+  };
 };
