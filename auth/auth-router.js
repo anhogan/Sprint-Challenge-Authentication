@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/secrets');
 const Users = require('./auth-model');
 
-router.post('/register', (req, res) => {
+router.post('/register', validateUser, (req, res) => {
   const newUser = req.body;
   const hash = bcrypt.hashSync(newUser.password, 8);
   newUser.password = hash;
@@ -21,7 +21,7 @@ router.post('/register', (req, res) => {
     });
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', validateUser, (req, res) => {
   let { username, password } = req.body;
 
   Users.findBy({ username }).first()
@@ -60,6 +60,16 @@ function generateToken(user) {
   };
 
   return jwt.sign(payload, jwtSecret, options)
+};
+
+function validateUser(req, res, next) {
+  if (Object.keys(req.body).length === 0) {
+    res.status(400).json({ message: "Missing user data" });
+  } else if (!req.body.username || !req.body.password) {
+    res.status(400).json({ message: "Each user must have a username and a password" });
+  } else {
+    next();
+  };
 };
 
 module.exports = router;
