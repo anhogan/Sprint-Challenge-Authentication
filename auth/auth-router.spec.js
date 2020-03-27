@@ -79,7 +79,7 @@ describe('Login Endpoint', () => {
 
   it('Returns a 401 error if user credentials are invalid', async () => {
     await request(server).post('/api/auth/register').send({ username: "Jaxxx", password: "password" });
-    
+
     const login = await request(server).post('/api/auth/login').send({ username: 'Jax', password: 'pass' });
 
     expect(login.statusCode).toBe(401);
@@ -88,13 +88,24 @@ describe('Login Endpoint', () => {
   });
 });
 
-// NEED TO WRITE THESE
 describe('Logout Endpoint', () => {
   it('Logs the user out if authorization header is present', async () => {
+    await request(server).post('/api/auth/register').send({ username: "Jaxxx", password: "password" });
 
+    const login = await request(server).post('/api/auth/login').send({ username: "Jaxxx", password: "password" });
+
+    const token = login.body.token;
+
+    const res = await request(server).get('/api/auth/logout').set({ authorization: token });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe('Successfully logged out');
   });
 
   it('Throws an error if user is not logged in', async () => {
+    const res = await request(server).get('/api/auth/logout');
 
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe('Already logged out');
   });
 });
